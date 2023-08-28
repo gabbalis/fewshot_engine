@@ -1,0 +1,15 @@
+{
+    "confirmed_examples": [
+        {
+            "name": "example_1 name",
+            "prompt_history_index": 1,
+            "input": "Example 1 input",
+            "output": "example 1 output"
+        }
+    ],
+    "unconfirmed_examples": [],
+    "prompt_history": [
+        "",
+        "This prompt has text in it!"
+    ]
+}
