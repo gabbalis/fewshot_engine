@@ -1,7 +1,7 @@
 import json
 import os
-from context_managers.OpenWithHandling import OpenWithHandling as open
-from src.general_models.model_factory import ModelFactory
+from few_shot_engine.context_managers.OpenWithHandling import OpenWithHandling as open
+from few_shot_engine.general_models.model_factory import ModelFactory
 get_chat_completion = ModelFactory().get_chat_completion
 import random
 import argparse

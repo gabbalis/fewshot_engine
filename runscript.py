@@ -6,9 +6,9 @@ import argparse
 def main(args):
     with PythonPathHas('.'):
         from context_managers.OpenWithHandling import OpenWithHandling as open
-        from src.few_shot_engine import FewShotEngine
+        from few_shot_engine.few_shot_engine import FewShotEngine
 
-        command = f"python .\\few_shot_engine\\src\\zip_utils.py --unzipped_dir .\\{topic}\\{name}_dir\\ --zipped_file .\\{topic}\\{name}.json --zip"
+        command = f"python .\\few_shot_engine\\zip_utils.py --unzipped_dir .\\{topic}\\{name}_dir\\ --zipped_file .\\{topic}\\{name}.json --zip"
         subprocess.run(command, shell=True)
 
         save_dir = args.save_dir
@@ -21,7 +21,7 @@ def main(args):
         f=FewShotEngine(f"{name}", os.path.abspath('.\\{topic}'), save_examples=True, base_prompt=base_prompt)
         f.process(prompt_input)
 
-        command = f"python .\\few_shot_engine\\src\\zip_utils.py --unzipped_dir {save_dir}\\{topic}\\{name}_dir\\ --zipped_file {save_dir}\\{topic}\\{name}.json --unzip"
+        command = f"python .\\few_shot_engine\\zip_utils.py --unzipped_dir {save_dir}\\{topic}\\{name}_dir\\ --zipped_file {save_dir}\\{topic}\\{name}.json --unzip"
         subprocess.run(command, shell=True)
 
 if __name__ == '__main__':
