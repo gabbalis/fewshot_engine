@@ -1,7 +1,9 @@
 from contextlib import AbstractContextManager
-from context_managers.CatchingContextManager import CatchingContextManager
+from .CatchingContextManager import CatchingContextManager
 import json
 from typing import Union, Callable
+from loguru import logger
+import os
 
 class OpenWithHandling(AbstractContextManager):
     def __init__(self, 
@@ -29,7 +31,22 @@ class OpenWithHandling(AbstractContextManager):
             FileNotFoundError: "File {file} not found.",
             Exception: "An unexpected {error_type} occurred with {file} open: {e}"
         }
-        self.cm = CatchingContextManager(open, self.args, self.error_dict)
+        self.cm = CatchingContextManager(self._ensure_directory_and_open, self.args, self.error_dict)
+
+    # Helper function to make sure the directory exists and warn if it doesn't
+    def _ensure_directory_and_open(self, *args, **kwargs):
+        file_path = kwargs.get('file', None) or args[0]
+        directory = os.path.dirname(file_path)
+        
+        # Create directory if it does not exist
+        if not os.path.exists(directory):
+            logger.warning(f"Directory {directory} did not exist; creating it.")
+            os.makedirs(directory)
+        
+        # Call the actual open function
+        return open(*args, **kwargs)
+
+        
 
     def __enter__(self):
         self.f = self.cm.__enter__()

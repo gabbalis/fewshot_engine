@@ -1,6 +1,8 @@
 import json
 import os
-from shared.openai import get_chat_completion
+from few_shot_engine.context_managers.OpenWithHandling import OpenWithHandling as open
+from few_shot_engine.src.general_models.model_factory import ModelFactory
+get_chat_completion = ModelFactory().get_chat_completion
 import random
 import argparse
 
@@ -67,9 +69,10 @@ class FewShotEngine:
             output_str = get_chat_completion(input)
             if self.save_examples:
                 self.unconfirmed_examples.append(
-                    {'input': input_str,
-                     'output': output_str,
-                     'prompt_history_index': self.prompt_history_index})
+                    {   'name': "",
+                        'input': input_str,
+                        'output': output_str,
+                        'prompt_history_index': self.prompt_history_index})
                 self.save_data()
         else:
             if confirmed_index >= 0:

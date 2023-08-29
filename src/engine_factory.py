@@ -1,5 +1,6 @@
 # a Strategy helper function that dynamically creates and uses memoized few shot templates 
 import textwrap
+from few_shot_engine.context_managers.OpenWithHandling import OpenWithHandling as open
 import os
 import json
 
