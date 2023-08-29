@@ -1,5 +1,5 @@
 import subprocess
-from context_managers.PythonPathHas import PythonPathHas
+from few_shot_engine.context_managers.PythonPathHas import PythonPathHas
 import os
 import argparse
 
