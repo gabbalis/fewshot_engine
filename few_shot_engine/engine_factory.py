@@ -87,7 +87,7 @@ Here is a template of exactly what you should return:
 """
             return r
 
-        code = f"from fewshot.core.few_shot_engine import FewShotEngine\nNL = \"\\n\"\n"
+        code = f"from few_shot_engine.few_shot_engine import FewShotEngine\nNL = \"\\n\"\n"
         NL = "\n"
         # First we add the base prompt and FewShotEngine code.
         code += f"""
