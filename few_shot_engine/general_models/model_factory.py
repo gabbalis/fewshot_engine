@@ -1,4 +1,4 @@
-from few_shot_engine.src.general_models.oai import get_chat_completion, count_tokens
+from few_shot_engine.general_models.oai import get_chat_completion, count_tokens
 class ModelFactory:
     def __init__(self, model="openAI", args="GPT3.5"):
         if model == "openAI":

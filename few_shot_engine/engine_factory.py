@@ -5,11 +5,11 @@ import os
 import json
 
 class EngineFactory(object):
-    def __init__(self, few_shot_root, args, rebuild=False):
+    def __init__(self, few_shot_root, args):
         self.example_dir = os.path.join(few_shot_root, 'examples')
         self.save_directory = os.path.join(few_shot_root, 'factory')
         self.memo_file = os.path.join(self.save_directory, 'memo.json')
-
+        # self.rebuild = rebuild
         try:
             with open(self.memo_file, 'r') as file:
                 self.memo = json.load(file)
@@ -17,7 +17,7 @@ class EngineFactory(object):
             self.memo = {}
 
         self.engine = self.load_engine(args)
-        if not self.engine or rebuild:
+        if not self.engine: #or self.rebuild:
             self.check_fields(*args)
             self.engine = self.make_engine(args)
 
@@ -36,7 +36,7 @@ class EngineFactory(object):
         if name in self.memo:
             for existing_entry in self.memo[name]:
                 if existing_entry['args'] == args:
-                    raise ValueError("Unreachable code error? save_engine called for existing version.")
+                        raise ValueError("Unreachable code error? save_engine called for existing version.")
             new_entry['version'] = len(self.memo[name]) + 1
             self.memo[name].append(new_entry)
         else:
@@ -113,8 +113,8 @@ Dont return any comments or additional explaination. Just the requested code.
 """
         elif len(fields)==2:
             code += f"""
-    {fields[1]} = context.get('{fields[1]}')
-    for {fields[0]} in {fields[1]}:
+    {fields[1].split('.')[0]} = context.get('{fields[1]}')
+    for {fields[0]} in {fields[1].split('.')[0]}:
 {get_do(tabs=1)}
     return return_val
 """
