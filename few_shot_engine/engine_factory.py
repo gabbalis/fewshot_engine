@@ -5,7 +5,7 @@ import os
 import json
 
 class EngineFactory(object):
-    def __init__(self, few_shot_root, args):
+    def __init__(self, few_shot_root, args, rebuild=False):
         self.example_dir = os.path.join(few_shot_root, 'examples')
         self.save_directory = os.path.join(few_shot_root, 'factory')
         self.memo_file = os.path.join(self.save_directory, 'memo.json')
@@ -17,7 +17,7 @@ class EngineFactory(object):
             self.memo = {}
 
         self.engine = self.load_engine(args)
-        if not self.engine:
+        if not self.engine or rebuild:
             self.check_fields(*args)
             self.engine = self.make_engine(args)
 
