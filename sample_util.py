@@ -3,7 +3,7 @@ from few_shot_engine.few_shot_engine import FewShotEngine
 
 gui = Gui()
 
-def utility_function(name, save_directory, input_string, num_examples=3, save_examples=False, base_prompt=""):
+def utility_function(name, input_string, save_directory='.', num_examples=3, save_examples=False, base_prompt=""):
     # Step 1: Create a new FewShotEngine
     engine = FewShotEngine(name, save_directory, num_examples, save_examples, base_prompt)
 
