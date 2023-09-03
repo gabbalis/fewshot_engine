@@ -1,7 +1,7 @@
 import json
 import os
 import argparse
-from few_shot_engine.context_managers.OpenWithHandling import OpenWithHandling as open
+from context_managers.OpenWithHandling import OpenWithHandling as open
 from collections import defaultdict
 def unzip_examples(zipped_file, unzipped_dir):
     with open(zipped_file, 'r') as f:
