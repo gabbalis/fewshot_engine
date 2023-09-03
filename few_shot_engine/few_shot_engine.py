@@ -5,6 +5,8 @@ from few_shot_engine.general_models.model_factory import ModelFactory
 get_chat_completion = ModelFactory().get_chat_completion
 import random
 import argparse
+import subprocess
+import uuid
 
 # BASE_SYSTEM_PROMPT = """
 # You are a flawless completion engine.
@@ -17,6 +19,10 @@ class FewShotEngine:
         self.save_directory = save_directory
         self.confirmed_examples = []
         self.unconfirmed_examples = []
+
+        self.uuids = set([])
+        self.last_gen_uuid = None
+        
         self.prompt_history = []
         self.cli_inputs = []
         self.base_prompt = base_prompt if base_prompt is not None else ""
@@ -45,6 +51,15 @@ class FewShotEngine:
                 self.prompt_history = data.get('prompt_history', [])
                 self.cli_inputs =data.get('cli_inputs', [])
 
+                for example_list in [self.confirmed_examples, self.unconfirmed_examples]:
+                    for example in example_list:
+                        if "uuid" not in example:
+                            new_uuid = str(uuid.uuid4())
+                            while new_uuid in self.uuids:  # Ensure uniqueness
+                                new_uuid = str(uuid.uuid4())
+                            example["uuid"] = str(new_uuid)
+                            self.uuids.add(example["uuid"])
+
     def process(self, input_str, examples=None):
         if examples == None:
             examples = self.confirmed_examples
@@ -68,18 +83,32 @@ class FewShotEngine:
         if unconfirmed_index == -1 and confirmed_index == -1:
             output_str = get_chat_completion(input)
             if self.save_examples:
-                self.unconfirmed_examples.append(
-                    {   'name': "",
-                        'input': input_str,
-                        'output': output_str,
-                        'prompt_history_index': self.prompt_history_index})
-                self.save_data()
+                self.add_unconfirmed_example(input_str, output_str)
         else:
             if confirmed_index >= 0:
                 output_str =  self.confirmed_examples[confirmed_index]['output']
             else:
                 output_str =  self.unconfirmed_examples[unconfirmed_index]['output']
         return output_str
+
+    def add_unconfirmed_example(self, input_str, output_str):
+        new_uuid = str(uuid.uuid4())
+        while new_uuid in self.uuids:  # Ensure uniqueness
+            new_uuid = str(uuid.uuid4())
+        self.last_gen_uuid = new_uuid  # Set the last generated UUID
+
+        new_example = {
+            'uuid': new_uuid,
+            'name': "",
+            'input': input_str,
+            'output': output_str,
+            'prompt_history_index': self.prompt_history_index
+        }
+        self.unconfirmed_examples.append(new_example)
+        self.uuids.add(new_uuid)
+
+        self.save_data()
+
 
     def save_data(self):
         file_path = os.path.join(self.save_directory, f'{self.name}.json')
@@ -91,6 +120,47 @@ class FewShotEngine:
         }
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
+
+    def zip(self):
+        command = f"python {self.zip_script_path} --unzipped_dir {self.save_directory}\\{self.name}_dir\\ --zipped_file {self.save_directory}\\{self.name}.json --zip"
+        subprocess.run(command, shell=True)
+        self.load_data()
+
+    def unzip(self):
+        command = f"python {self.zip_script_path} --unzipped_dir {self.save_directory}\\{self.name}_dir\\ --zipped_file {self.save_directory}\\{self.name}.json --unzip"
+        subprocess.run(command, shell=True)
+
+    def get_last_gen_dirs(self):
+        if self.last_gen_uuid is None:
+            return None
+
+        dirs = []
+
+        # Flag to check if UUID is found in the directories
+        uuid_found = False
+
+        # Assuming the unzipped files are stored in folders within 'self.save_directory'
+        for root, _, files in os.walk(f"{self.save_directory}\\{self.name}_dir"):
+            for filename in files:
+                if filename.endswith(".metadata.json"):
+                    with open(os.path.join(root, filename), 'r') as f:
+                        metadata = json.load(f)
+                        if metadata.get("uuid") == self.last_gen_uuid:
+                            uuid_found = True
+                            dirs.append(os.path.abspath(os.path.join(root, filename)))  # Adding metadata.json
+                            dirs.append(os.path.abspath(os.path.join(root, filename.replace(".metadata.json", ".input.txt"))))
+                            dirs.append(os.path.abspath(os.path.join(root, filename.replace(".metadata.json", ".output.txt"))))
+
+        # Raise an error if no directories are found with the given UUID
+        if not uuid_found:
+            raise ValueError(f"No directories found for the last generated UUID: {self.last_gen_uuid}")
+
+        # Adding the path to the zipped directory
+        zipped_dir = os.path.abspath(f"{self.save_directory}\\{self.name}.json")
+        dirs.append(zipped_dir)
+
+        return dirs
+
 
 
 def main():
