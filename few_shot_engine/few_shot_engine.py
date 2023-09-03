@@ -39,7 +39,7 @@ class FewShotEngine:
         else:
             self.prompt_history.append(self.base_prompt)
             self.prompt_history_index = len(self.prompt_history)-1
-
+        self.zip_script_path = os.path.join(os.path.dirname(__file__), 'zip_utils.py')
 
     def load_data(self):
         file_path = os.path.join(self.save_directory, f'{self.name}.json')
