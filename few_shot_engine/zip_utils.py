@@ -19,6 +19,7 @@ def unzip_examples(zipped_file, unzipped_dir):
             f.write(example["output"].replace("\\n", "\n"))
 
         metadata = {
+            "uuid": example.get('uuid', ""),
             "name": example.get('name', f"example_{i}"),
             "prompt_history_index": example.get("prompt_history_index", ""),
             "status": "confirmed" if example in data.get("confirmed_examples", []) else "unconfirmed"
